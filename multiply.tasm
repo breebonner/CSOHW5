@@ -1,0 +1,23 @@
+mov $0x10, %r2
+mov $0x03, %r3
+mov $0x00, %r0
+
+negation:
+neg %r3
+mov negation, %r1
+jump %r3, %r1
+neg %r3
+add $0x01, %r3
+
+top:
+add %r2, %r0
+add $0x01, %r3
+mov top, %r1
+jump %r3, %r1
+
+
+positive:
+neg %r0
+mov positive, %r1
+jump %r0, %r1
+halt
