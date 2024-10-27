@@ -49,8 +49,6 @@ return_zero:
 	.globl	gcd
 gcd:
 	# x in %rdi and y in %rsi 
-	cmpq	 %rsi, %rdi	#Check if x equals y
-	je	 return_y
 
 	cmpq	 $0, %rsi	#Check if y is 0
 	je	 return_x
@@ -86,9 +84,9 @@ return_y:
 	.globl	prime
 prime:
 	#x in %rdi 
-	movq 	$2, %rcx	#counter in %rcx
 	cmpq	$2, %rdi	#check if x is less than 2
-	jl	not_prime	#if so, x is not prime 
+	jl	not_prime	#if so, x is not prime
+	movq    $2, %rcx        #counter in %rcx 
 
 prime_loop:
 	cmpq	%rcx, %rdi	#compare i with x, so %rcx and rdi
@@ -110,12 +108,13 @@ is_prime:
         retq
 
 not_prime:
-        xorq    %rax, %rax      # Return 0 (not prime)
+        xorq    $0, %rax      # Return 0 (not prime)
         retq
 
 ############################################################
 ##                end of prime routine                    ##
 ############################################################
+
 
 
 
