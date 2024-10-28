@@ -48,41 +48,28 @@ return_zero:
 
 	.globl	gcd
 gcd:
-	# x in %rdi and
-
-	 pushq	%rbp
-	movq	%rsp, %rbp
-
-	movq	%rdi, %rax
-	movq	%rsi, %rbx
+	# x in %rdi and y in %rsi
 
 	# base case- y==0, return x
-	cmpq	$0, %rbx
+	cmpq	$0, %rsi
 	je 	return_x
 	
-	# base case- x==y, return y
-	cmpq	%rax, %rbx
-	je	return_y
-
-	movq	%rax, %rdi
-	movq	%rbx, %rsi
-	call	modulo
+	pushq	%rdi
+	pushq	%rsi 
 	
-	movq	%rbx, %rdi
-	movq	%rax, %rsi
+	call modulo 
+
+	popq	%rsi 
+	popq	%rdi
+
+	movq 	%rsi, %rdi
+	movq	%rax, %rsi  
 	call 	gcd
 
-	pop	%rbp 
-	retq	
-
-return_x: 
-	 pop     %rbp    
-	 retq 
-
-return_y: 
-	movq	%rbx, %rax
-	popq	%rbp 		
 	retq
+return_x: 
+	 movq	%rdi, %rax    
+	 retq
 
 ############################################################
 ##                 end of gcd routine                     ##
@@ -98,7 +85,7 @@ return_y:
 prime:
 	xorq	%rax, %rax
 	cmpq	$1, %rdi
-	je	not_prime 
+	jle	not_prime 
 	cmpq	$2, %rdi
 	je	end_prime 
 	cmpq	$3, %rdi
