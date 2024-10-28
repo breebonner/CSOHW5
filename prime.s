@@ -1,7 +1,7 @@
 	.text
 
 ############################################################
-## CSO1 Spring 2023 - Homework 5 
+## CSO1 Fall 2024 - Homework 5 
 ## 
 ## Computing ID: bab3pz
 ## 
@@ -48,27 +48,40 @@ return_zero:
 
 	.globl	gcd
 gcd:
-	# x in %rdi and y in %rsi 
+	# x in %rdi and
 
-	cmpq	 $0, %rsi	#Check if y is 0
-	je	 return_x
+	 pushq	%rbp
+	movq	%rsp, %rbp
 
-	pushq	 %rdi		#Saves x on stack
-	pushq	 %rsi		#Saves y on stack 
-	call	 modulo		#Calls the mod function
+	movq	%rdi, %rax
+	movq	%rsi, %rbx
 
-	popq	 %rsi		#Restores %rsi (y) from stack
-	popq	 %rdi		#Restores %rdi (x) from stack
+	# base case- y==0, return x
+	cmpq	$0, %rbx
+	je 	return_x
+	
+	# base case- x==y, return y
+	cmpq	%rax, %rbx
+	je	return_y
 
-	movq	 %rsi, %rdi	#Moves y to %rdi in preparation for next call
-	movq	 %rax, %rsi	#Moves result of the mod, in %rax, to %rsi
+	movq	%rax, %rdi
+	movq	%rbx, %rsi
+	call	modulo
+	
+	movq	%rbx, %rdi
+	movq	%rax, %rsi
+	call 	gcd
+
+	pop	%rbp 
+	retq	
 
 return_x: 
-	movq	%rdi, %rax	#Returns x if y is 0 
-	retq
+	 pop     %rbp    
+	 retq 
 
 return_y: 
-	movq	%rsi, %rax	#Returns y if x equals y 		
+	movq	%rbx, %rax
+	popq	%rbp 		
 	retq
 
 ############################################################
@@ -83,33 +96,39 @@ return_y:
 
 	.globl	prime
 prime:
-	#x in %rdi 
-	cmpq	$2, %rdi	#check if x is less than 2
-	jl	not_prime	#if so, x is not prime
-	movq    $2, %rcx        #counter in %rcx 
+	xorq	%rax, %rax
+	cmpq	$1, %rdi
+	je	not_prime 
+	cmpq	$2, %rdi
+	je	end_prime 
+	cmpq	$3, %rdi
+	je	end_prime 
+	movq	$2, %rsi
+	movq	$1, %rax
 
-prime_loop:
-	cmpq	%rcx, %rdi	#compare i with x, so %rcx and rdi
-	jge	is_prime	#if i ix less than x, leave the loop, prime 
-	
-	# Call gcd(x, i)
-        movq    %rdi, %rdi      # Set x in %rdi for gcd
-        movq    %rcx, %rsi      # Set i in %rsi for gcd
-        call    gcd
+prime_loop: 
+	cmpq	%rdi, %rsi 
+	jge	end_prime
 
-        cmpq    $1, %rax        # Check if gcd(x, i) != 1
-        jne     not_prime       # If not, return 0 (not prime)
+	pushq	%rdi
+	pushq	%rsi 
+	call gcd 
+	popq	%rsi 
+	popq	%rdi 
 
-        incq    %rcx            # Increment i
-        jmp     prime_loop      # Repeat the loop
+	cmpq	$1, %rax
+	jne	not_prime
 
-is_prime:
-        movq    $1, %rax        # Return 1 (prime)
-        retq
+	incq	%rsi 
+	jmp	prime_loop
 
-not_prime:
-        xorq    $0, %rax      # Return 0 (not prime)
-        retq
+not_prime: 
+	movq	$0, %rax 
+	retq
+
+end_prime:
+	movq	$1, %rax 
+	retq 
 
 ############################################################
 ##                end of prime routine                    ##
@@ -127,7 +146,7 @@ printNum:
 	pushq	%r12
 	pushq	%rbx
 	subq	$24, %rsp
-	movq	%fs:40, %rax
+	movq%fs:40, %rax
 	movq	%rax, 16(%rsp)
 	movb	$48, 15(%rsp)
 	testq	%rdi, %rdi
